@@ -33,6 +33,7 @@
   /* 학생 화면 */
   .stu { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
   .names { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+  .inp { width:100%; font-size:20px; padding:12px; border:1px solid var(--line); border-radius:10px; margin-top:6px; font-family:ui-monospace,Menlo,Consolas,monospace; }
   .names button { font-size:18px; padding:16px 8px; background:#fff; border:1px solid var(--line); }
   .field { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin:10px 0; }
   .field .lb { font-size:14px; color:var(--sub); }
@@ -109,6 +110,17 @@
     <p class="muted">QR을 찍고 내 이름을 누르세요</p>
   </div>
   <div id="cards" class="cards"></div>
+</div>
+
+<div id="self" class="stu" hidden>
+  <h1>내 AIEP 계정 저장하기</h1>
+  <p class="muted">처음 한 번만 입력하면 이 태블릿에 저장돼요. 다음부터는 링크만 누르면 바로 로그인 도우미가 열려요.</p>
+  <div class="field"><div class="lb">이름</div><input id="fN" class="inp" autocomplete="off" placeholder="홍길동"></div>
+  <div class="field"><div class="lb">아이디 (@icedu.kr 앞부분)</div><input id="fI" class="inp" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <div class="field"><div class="lb">비밀번호</div><input id="fP" class="inp" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <button id="fSave" class="pri big">저장하기</button>
+  <p id="fMsg" class="err"></p>
+  <p class="muted">공용 태블릿이면 다 쓴 뒤 [다른 사람이에요]를 눌러 지워 주세요.</p>
 </div>
 
 <div id="pick" class="stu" hidden>
@@ -199,9 +211,25 @@ function pickView(cls) {
   });
 }
 
+/* ---------- 학생: 빈 링크 → 자기 계정 직접 입력 → 이 기기에 저장 ---------- */
+function selfView(site) {
+  const KEY = 'aiep-self';
+  const saved = (() => { try { return JSON.parse(ls.get(KEY) || 'null'); } catch (e) { return null; } })();
+  const forget = () => { ls.set(KEY, null); selfView(site); };
+  if (saved && saved.i && saved.p) return studentView({ n: saved.n || '내 계정', i: saved.i, p: saved.p, s: site }, forget);
+  $('student').hidden = true; $('pick').hidden = true; $('self').hidden = false;
+  $('fSave').onclick = () => {
+    const n = $('fN').value.trim(), i = $('fI').value.trim().replace(/@icedu\.kr$/, ''), p = $('fP').value;
+    if (!i || !p) { $('fMsg').textContent = '아이디와 비밀번호를 모두 입력해 주세요.'; return; }
+    ls.set(KEY, JSON.stringify({ n, i, p }));
+    $('self').hidden = true; toast('저장했어요');
+    studentView({ n: n || '내 계정', i, p, s: site }, forget);
+  };
+}
+
 /* ---------- 학생 1명 화면 ---------- */
 function studentView(d, onOther) {
-  $('pick').hidden = true; $('student').hidden = false;
+  $('pick').hidden = true; $('self').hidden = true; $('student').hidden = false;
   document.title = d.n + ' 로그인';
   $('sName').textContent = d.n; $('meName').textContent = d.n;
   $('sId').textContent = d.i; $('sPw').textContent = d.p;
@@ -325,8 +353,11 @@ async function build(e) {
   $('msg').innerHTML = out.length ? out.length + '명의 반 링크를 만들었어요.' + (withQr ? ' (반 전체 QR 1장 + 학생별 QR 카드 ' + out.length + '장 포함)' : '') : '';
   if (skipped.length) $('msg').innerHTML += ' <span class="err">이름·아이디·비밀번호 중 빈 칸이 있어 건너뛴 줄: ' + skipped.join(', ') + '</span>';
   if (!out.length && !skipped.length && fromButton) {
-    $('msg').innerHTML = '<span class="err">⚠️ 명단이 비어 있어요. 위 칸에 한 줄에 한 명씩 <b>이름 아이디 비밀번호</b>를 입력하거나 엑셀 파일을 넣어 주세요.</span>';
-    $('list').focus();
+    // 명단 없이 만들면 학생이 자기 계정을 직접 입력해 그 기기에 저장하는 링크가 된다.
+    classUrl = base + '#self=' + b64e(site);
+    $('classLink').value = classUrl; $('openClass').href = classUrl;
+    $('linkBox').hidden = false; $('classBox').hidden = true; $('printRow').hidden = true;
+    $('msg').innerHTML = '명단 없이 <b>학생이 직접 입력하는 링크</b>를 만들었어요. 학생이 처음 한 번 자기 아이디·비밀번호를 넣으면 그 태블릿에 저장되고, 다음부터는 링크만 누르면 돼요. (링크 안에는 계정이 들어 있지 않아요)';
   } else if (!out.length && skipped.length) {
     $('msg').innerHTML = '<span class="err">⚠️ 링크를 만들 수 있는 줄이 없어요. 한 줄에 <b>이름 아이디 비밀번호</b> 세 가지가 모두 있어야 해요 (띄어쓰기로 구분).</span>';
   }
@@ -360,6 +391,8 @@ async function downloadHtml() {
   if (window.AIEP_CLASS) return pickView(window.AIEP_CLASS);
   const h = location.hash;
   try {
+    const sm = h.match(/^#self=([A-Za-z0-9_-]+)/);
+    if (sm) return selfView(b64d(sm[1]));
     let m = h.match(/^#l=([A-Za-z0-9_-]+)/);
     if (m) return pickView(JSON.parse(b64d(m[1])));
     m = h.match(/^#c=([A-Za-z0-9_-]+)/);
