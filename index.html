@@ -88,7 +88,7 @@
   </div>
   <button id="go" class="pri big">① 아이디 복사</button>
   <ol class="steps">
-    <li>파란 버튼을 두 번 눌러요. 처음엔 아이디, 두 번째엔 비밀번호가 복사되고 로그인 화면이 열려요.</li>
+    <li>파란 버튼을 세 번 눌러요: ① 아이디 복사 → ② 비밀번호 복사 → ③ 로그인 화면 열기</li>
     <li>아이디 칸을 누르고 → 키보드의 <b>클립보드</b> 버튼 → <b>아이디</b>를 골라요.</li>
     <li>비밀번호 칸을 누르고 → 클립보드에서 <b>비밀번호</b>를 골라요. → 로그인!</li>
   </ol>
@@ -124,19 +124,23 @@ function studentView(d) {
   $('sPw').textContent = d.p;
   $('cpId').onclick = async () => toast(await copy(d.i) ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   $('cpPw').onclick = async () => toast(await copy(d.p) ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
-  // 자동으로 연달아 복사하면 키보드 클립보드가 하나로 합친다(갤럭시탭 실기기 확인).
-  // 그래서 학생이 같은 버튼을 두 번 눌러 따로따로 복사하게 한다.
-  let step = 1;
-  $('go').onclick = async () => {
-    if (step === 1) {
-      toast(await copy(d.i) ? '아이디를 복사했어요. 한 번 더 누르세요' : '복사가 안 돼요. 직접 입력해 주세요');
-      step = 2;
-      $('go').textContent = '② 비밀번호 복사하고 로그인 열기';
-      return;
-    }
-    await copy(d.p);
-    toast('비밀번호를 복사했어요. 로그인 화면으로 이동해요');
-    setTimeout(() => { location.href = d.s; }, 900);
+  // 연달아 복사하거나 복사 직후 페이지를 옮기면 키보드 클립보드에 마지막 것만 남는다(갤럭시탭 실기기).
+  // 그래서 아이디 복사 → 비밀번호 복사 → 로그인 열기를 각각 따로 누르게 하고, 사이에 1초씩 둔다.
+  const steps = [
+    ['① 아이디 복사', async () => toast(await copy(d.i) ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요')],
+    ['② 비밀번호 복사', async () => toast(await copy(d.p) ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요')],
+    ['③ 로그인 화면 열기', async () => { location.href = d.s; }],
+  ];
+  let step = 0;
+  const go = $('go');
+  go.textContent = steps[0][0];
+  go.onclick = async () => {
+    if (go.disabled) return;
+    await steps[step][1]();
+    if (step === steps.length - 1) return;
+    step += 1;
+    go.disabled = true; go.style.opacity = '.5';
+    setTimeout(() => { go.disabled = false; go.style.opacity = ''; go.textContent = steps[step][0]; }, 1000);
   };
 }
 
