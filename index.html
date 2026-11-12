@@ -65,7 +65,11 @@
     <div class="panel muted">
       ⚠️ QR 안에 아이디·비밀번호가 들어 있습니다. QR 사진만 있으면 누구나 로그인할 수 있으니 반 안에서만 쓰고, 학기가 끝나면 비밀번호를 바꿔 주세요.
     </div>
-    <div class="row" id="printRow" hidden><button class="pri" onclick="window.print()">인쇄 / PDF 저장</button></div>
+    <div class="row" id="printRow" hidden>
+      <button class="pri" onclick="window.print()">인쇄 / PDF 저장</button>
+      <button id="linkXlsx">학생별 링크 엑셀 받기</button>
+      <span class="muted">노트북 학생은 QR 대신 링크를 패들렛·클래스룸에 올려 클릭하게 하세요.</span>
+    </div>
   </div>
   <div id="cards" class="cards"></div>
 </div>
@@ -176,8 +180,10 @@ function build(rows) {
     out.push({ n, i: id, p: pw, s: site });
   });
   const box = $('cards'); box.innerHTML = '';
+  const links = [];
   out.forEach(d => {
     const url = base + '#d=' + b64e(JSON.stringify(d));
+    links.push([d.n, url]);
     const q = qrcode(0, 'M'); q.addData(url); q.make();
     const c = document.createElement('div'); c.className = 'qcard';
     c.innerHTML = '<div class="nm"></div><img alt="QR"><div class="id"></div>';
@@ -188,6 +194,12 @@ function build(rows) {
   });
   $('msg').innerHTML = out.length + '명 카드를 만들었어요.' + (skipped.length ? ' <span class="err">빈 칸이 있어 건너뛴 줄: ' + skipped.join(', ') + '</span>' : '');
   $('printRow').hidden = !out.length;
+  $('linkXlsx').onclick = () => {
+    const ws = XLSX.utils.aoa_to_sheet([['이름', '로그인 링크'], ...links]);
+    ws['!cols'] = [{wch:10}, {wch:90}];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '학생별 링크');
+    XLSX.writeFile(wb, 'AIEP_학생별_로그인링크.xlsx');
+  };
 }
 
 (function () {
