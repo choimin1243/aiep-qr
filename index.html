@@ -123,7 +123,7 @@ function studentView(d) {
   // 키보드 클립보드 기록에 아이디와 비밀번호가 따로 남도록 시간 차를 두고 두 번 복사한다.
   $('go').onclick = async () => {
     await copy(d.i);
-    await new Promise(r => setTimeout(r, 700));
+    await new Promise(r => setTimeout(r, 1500));
     await copy(d.p);
     toast('복사했어요. 로그인 화면으로 이동해요');
     setTimeout(() => { location.href = d.s; }, 900);
