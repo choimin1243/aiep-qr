@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIEP 로그인 QR</title>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --sub:#5b6476; --line:#dde1e8; --pri:#1a5fd0; --pri-ink:#fff; --ok:#14804a; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif; }
+  .wrap { max-width:880px; margin:0 auto; padding:20px 16px 60px; }
+  h1 { font-size:22px; margin:8px 0 4px; }
+  p.lead { color:var(--sub); margin:0 0 18px; line-height:1.55; }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:14px; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px 12px; text-align:center; color:var(--sub); cursor:pointer; }
+  .drop.over { border-color:var(--pri); background:#eef4ff; }
+  button, .btn { appearance:none; border:0; border-radius:10px; padding:12px 16px; font-size:16px; font-weight:600; cursor:pointer; background:#e9edf3; color:var(--ink); text-decoration:none; display:inline-block; }
+  .pri { background:var(--pri); color:var(--pri-ink); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .muted { color:var(--sub); font-size:14px; line-height:1.55; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:14px; }
+  .qcard { background:#fff; border:1px solid #bbb; border-radius:8px; padding:10px; text-align:center; break-inside:avoid; }
+  .qcard .nm { font-size:18px; font-weight:700; }
+  .qcard .id { font-size:13px; color:#333; word-break:break-all; }
+  .qcard img { width:150px; height:150px; image-rendering:pixelated; }
+  .err { color:#b42318; }
+  /* 학생 화면 */
+  .stu { max-width:480px; margin:0 auto; padding:24px 16px; }
+  .field { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin:10px 0; }
+  .field .lb { font-size:14px; color:var(--sub); }
+  .field .val { font-size:26px; font-weight:700; letter-spacing:.5px; word-break:break-all; margin:4px 0 10px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .big { width:100%; font-size:19px; padding:16px; margin-top:6px; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1d2330; color:#fff; padding:10px 16px; border-radius:20px; font-size:15px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.on { opacity:1; }
+  ol.steps { padding-left:20px; line-height:1.7; color:var(--sub); }
+  @media print {
+    body { background:#fff; }
+    .noprint { display:none !important; }
+    .wrap { max-width:none; padding:0; }
+    .cards { grid-template-columns:repeat(3,1fr); gap:6mm; }
+    .qcard { border:1px dashed #888; }
+  }
+</style>
+</head>
+<body>
+<div id="teacher" class="wrap" hidden>
+  <div class="noprint">
+    <h1>AIEP 로그인 QR 카드 만들기</h1>
+    <p class="lead">엑셀(A열 이름 · B열 아이디 · C열 비밀번호)을 넣으면 학생별 QR 카드가 만들어집니다.<br>
+      엑셀은 이 브라우저 안에서만 읽고 어디에도 올라가지 않습니다.</p>
+    <div class="panel">
+      <div id="drop" class="drop">여기에 엑셀 파일을 끌어다 놓거나 <b>눌러서 선택</b>하세요<br><span class="muted">.xlsx · .xls · .csv</span></div>
+      <input id="file" type="file" accept=".xlsx,.xls,.csv" hidden>
+      <div class="row" style="margin-top:12px">
+        <button id="sample">엑셀 양식 받기</button>
+        <label class="muted">로그인 사이트
+          <select id="site">
+            <option value="https://auth.icedu.kr/login/?mode=form">AIEP 인천</option>
+          </select>
+        </label>
+      </div>
+      <p id="msg" class="muted"></p>
+    </div>
+    <div class="panel muted">
+      ⚠️ QR 안에 아이디·비밀번호가 들어 있습니다. QR 사진만 있으면 누구나 로그인할 수 있으니 반 안에서만 쓰고, 학기가 끝나면 비밀번호를 바꿔 주세요.
+    </div>
+    <div class="row" id="printRow" hidden><button class="pri" onclick="window.print()">인쇄 / PDF 저장</button></div>
+  </div>
+  <div id="cards" class="cards"></div>
+</div>
+
+<div id="student" class="stu" hidden>
+  <h1 id="sName"></h1>
+  <div class="field">
+    <div class="lb">아이디</div>
+    <div class="val" id="sId"></div>
+    <button id="cpId">아이디 복사</button>
+  </div>
+  <div class="field">
+    <div class="lb">비밀번호</div>
+    <div class="val" id="sPw"></div>
+    <button id="cpPw">비밀번호 복사</button>
+  </div>
+  <button id="go" class="pri big">비밀번호 복사하고 로그인 화면 열기</button>
+  <ol class="steps">
+    <li>위 파란 버튼을 누르면 비밀번호가 복사되고 로그인 화면이 열려요.</li>
+    <li>아이디는 위에 보이는 글자를 그대로 입력해요.</li>
+    <li>비밀번호 칸을 길게 눌러 <b>붙여넣기</b> → 로그인!</li>
+  </ol>
+  <p class="muted">갤럭시탭: 키보드의 클립보드 버튼을 누르면 아이디와 비밀번호를 둘 다 골라 붙여 넣을 수 있어요. (아이디 복사 → 비밀번호 복사 순서로 눌러 두기)</p>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+// 학생 정보는 주소의 # 뒤에만 담는다. # 뒤는 서버로 전송되지 않는다.
+const b64e = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const b64d = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')), c => c.charCodeAt(0)));
+const $ = id => document.getElementById(id);
+
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 1600); }
+
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove(); return ok;
+}
+
+function studentView(d) {
+  $('student').hidden = false;
+  document.title = d.n + ' 로그인';
+  $('sName').textContent = d.n;
+  $('sId').textContent = d.i;
+  $('sPw').textContent = d.p;
+  $('cpId').onclick = async () => toast(await copy(d.i) ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
+  $('cpPw').onclick = async () => toast(await copy(d.p) ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
+  $('go').onclick = async () => { await copy(d.p); location.href = d.s; };
+}
+
+function teacherView() {
+  $('teacher').hidden = false;
+  const drop = $('drop'), file = $('file');
+  drop.onclick = () => file.click();
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave = () => drop.classList.remove('over');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) read(e.dataTransfer.files[0]); };
+  file.onchange = () => file.files[0] && read(file.files[0]);
+  $('sample').onclick = () => {
+    const ws = XLSX.utils.aoa_to_sheet([['이름','아이디','비밀번호'],['홍길동','hong001','abc1234!'],['김하늘','kim002','xyz5678!']]);
+    ws['!cols'] = [{wch:10},{wch:18},{wch:16}];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '학생명단');
+    XLSX.writeFile(wb, 'AIEP_QR_학생명단_양식.xlsx');
+  };
+}
+
+function read(f) {
+  const r = new FileReader();
+  r.onload = e => {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array' });
+      const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:'', raw:false });
+      build(rows);
+    } catch (err) { $('msg').innerHTML = '<span class="err">파일을 읽지 못했어요: ' + err.message + '</span>'; }
+  };
+  r.readAsArrayBuffer(f);
+}
+
+function build(rows) {
+  const site = $('site').value;
+  const base = location.origin + location.pathname;
+  const out = [], skipped = [];
+  rows.forEach((r, i) => {
+    const [n, id, pw] = [r[0], r[1], r[2]].map(v => String(v ?? '').trim());
+    if (!n && !id && !pw) return;
+    if (i === 0 && /이름|성명/.test(n)) return;          // 머리글 줄
+    if (!n || !id || !pw) { skipped.push(i + 1); return; }
+    out.push({ n, i: id, p: pw, s: site });
+  });
+  const box = $('cards'); box.innerHTML = '';
+  out.forEach(d => {
+    const url = base + '#d=' + b64e(JSON.stringify(d));
+    const q = qrcode(0, 'M'); q.addData(url); q.make();
+    const c = document.createElement('div'); c.className = 'qcard';
+    c.innerHTML = '<div class="nm"></div><img alt="QR"><div class="id"></div>';
+    c.querySelector('.nm').textContent = d.n;
+    c.querySelector('img').src = q.createDataURL(6, 2);
+    c.querySelector('.id').textContent = '아이디: ' + d.i;
+    box.appendChild(c);
+  });
+  $('msg').innerHTML = out.length + '명 카드를 만들었어요.' + (skipped.length ? ' <span class="err">빈 칸이 있어 건너뛴 줄: ' + skipped.join(', ') + '</span>' : '');
+  $('printRow').hidden = !out.length;
+}
+
+(function () {
+  const m = location.hash.match(/^#d=([A-Za-z0-9_-]+)/);
+  if (m) {
+    try { return studentView(JSON.parse(b64d(m[1]))); } catch (e) {}
+  }
+  teacherView();
+})();
+</script>
+</body>
+</html>
