@@ -78,7 +78,7 @@
         <button id="clear">명단 지우기</button>
         <label class="muted">로그인 사이트
           <select id="site">
-            <option value="https://ptl.icedu.kr/auth/saml/aiep/login">AIEP 인천</option>
+            <option value="https://icedu.kr/saml2/authenticate/portal?RelayState=elmUser">AIEP 인천 (학생)</option>
           </select>
         </label>
       </div>
@@ -228,10 +228,11 @@ function selfView(site) {
 }
 
 /* ---------- 학생 1명 화면 ---------- */
-// auth.icedu.kr 로그인 화면을 바로 열면 로그인 뒤 갈 서비스가 없어 midp.icedu.kr/sso/error.jsp 가 뜬다.
-// 포털(ptl.icedu.kr)의 SAML 입구로 열어야 로그인 뒤 AIEP 통합 서비스로 넘어간다. 예전 링크도 여기서 바꿔 준다.
-const AIEP = 'https://ptl.icedu.kr/auth/saml/aiep/login';
-const fixSite = s => (!s || /^https:\/\/auth\.icedu\.kr\/login\//.test(s)) ? AIEP : s;
+// auth.icedu.kr 로그인 화면을 바로 열거나 ptl.icedu.kr 입구로 열면 로그인 뒤 midp.icedu.kr SSO 에러가 난다
+// ("Cannot identify SP from Challenge"). icedu.kr 메인의 [학생 로그인] 버튼과 같은 입구로 열어야
+// midp 가 로그인 요청을 기억해 둔다. 예전 링크도 여기서 바꿔 준다.
+const AIEP = 'https://icedu.kr/saml2/authenticate/portal?RelayState=elmUser';
+const fixSite = s => (!s || /^https:\/\/(auth\.icedu\.kr\/login\/|ptl\.icedu\.kr\/)/.test(s)) ? AIEP : s;
 
 function studentView(d, onOther) {
   d = Object.assign({}, d, { s: fixSite(d.s) });
