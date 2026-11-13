@@ -68,7 +68,7 @@
   .field { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin:10px 0; box-shadow:var(--shadow); }
   .field .lb { font-size:14px; color:var(--sub); font-weight:600; }
   .field .val { font-size:26px; font-weight:800; letter-spacing:.5px; word-break:break-all; margin:4px 0 10px; font-family:ui-monospace,Menlo,Consolas,monospace; }
-  .big { width:100%; font-size:19px; padding:18px; margin-top:8px; border-radius:16px; }
+  .big { display:block; text-align:center; width:100%; font-size:19px; padding:18px; margin-top:8px; border-radius:16px; }
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1b1f3b; color:#fff; padding:11px 18px; border-radius:99px; font-size:15px; opacity:0; transition:opacity .2s; pointer-events:none; box-shadow:0 10px 30px -10px rgba(0,0,0,.5); }
   .toast.on { opacity:1; }
   .howto { background:#fff8ea; border:1px solid #f4dfb0; border-radius:16px; padding:16px; margin:12px 0; line-height:1.65; text-align:center; }
@@ -203,7 +203,7 @@
     <button id="cpPw">비밀번호 복사</button>
   </div>
   <div id="step1">
-    <button id="go1" class="pri big">① 아이디 복사하고 로그인 화면 열기</button>
+    <a id="go1" class="btn pri big" target="aiep-login" rel="opener">① 아이디 복사하고 로그인 화면 열기 (새 탭)</a>
     <div class="howto">
       <div>로그인 화면이 <b>새 탭</b>으로 열려요. <b>아이디</b>를 붙여 넣은 다음,<br>이 도우미 탭으로 돌아오세요.</div>
       <div class="tabs"><span class="tb on">AIEP 로그인 도우미</span><span class="tb">AIEP | 로그인</span></div>
@@ -320,11 +320,12 @@ function studentView(d, onOther) {
   const store = { get: () => { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } },
                   set: v => { try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch (e) {} } };
   const show = () => { const two = store.get() === '2'; $('step1').hidden = two; $('step2').hidden = !two; };
+  // ①은 target 이 붙은 진짜 링크다. 스크립트로 여는 창(window.open)은 QR 앱 브라우저·팝업 차단에서
+  // 같은 탭으로 바뀌는 일이 있어, 브라우저가 링크를 새 탭으로 여는 기본 동작에 맡긴다. 여기서는 복사만 한다.
+  $('go1').href = d.s;
   $('go1').onclick = () => {
     const ok = copyNow(d.i);
-    store.set('2'); show();
-    const w = window.open(d.s, TAB);
-    if (!w) { toast('새 탭이 막혔어요. 이 화면에서 로그인 화면을 열게요'); setTimeout(() => { location.href = d.s; }, 900); return; }
+    store.set('2'); setTimeout(show, 300);
     toast(ok ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   };
   $('go2').onclick = () => {
@@ -335,7 +336,7 @@ function studentView(d, onOther) {
       let blank = true; try { blank = w.location.href === 'about:blank'; } catch (e) { blank = false; }
       if (blank) w.location.href = d.s;
       w.focus();
-    } else { setTimeout(() => { location.href = d.s; }, 900); }
+    } else { toast('로그인 탭을 못 찾았어요. [처음부터 다시]를 눌러 ①부터 해 주세요'); }
     toast(ok ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   };
   $('restart').onclick = () => { store.set(null); show(); };
