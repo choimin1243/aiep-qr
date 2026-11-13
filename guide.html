@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIEP 로그인 도우미 사용법</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root { --bg:#f3f4fb; --card:#fff; --ink:#1b1f3b; --sub:#646a86; --line:#e3e5f2; --pri:#5446f0; --pri2:#7b5cff; --soft:#eeecff; --ok:#12865a;
+          --shadow:0 1px 2px rgba(27,31,59,.04), 0 10px 28px -14px rgba(54,44,160,.22); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif; -webkit-font-smoothing:antialiased; line-height:1.6; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 16px 60px; }
+  .hero { margin:16px 0 26px; padding:30px 26px; border-radius:22px; color:#fff; background:linear-gradient(120deg,#5446f0 0%,#7b5cff 55%,#9b7bff 100%); box-shadow:0 18px 40px -20px rgba(84,70,240,.7); }
+  .hero .badge { display:inline-block; font-size:13px; font-weight:700; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:99px; margin-bottom:10px; }
+  .hero h1 { margin:0 0 8px; font-size:28px; letter-spacing:-.4px; }
+  .hero p { margin:0; opacity:.94; }
+  .flow { display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+  .flow span { background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.25); padding:6px 12px; border-radius:99px; font-size:14px; font-weight:600; }
+  .part { display:flex; align-items:center; gap:10px; margin:34px 0 14px; }
+  .part .tag { font-size:13px; font-weight:800; color:#fff; background:var(--pri); padding:5px 12px; border-radius:99px; }
+  .part.stu .tag { background:#12865a; }
+  .part h2 { margin:0; font-size:22px; letter-spacing:-.3px; }
+  .step { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:20px; margin-bottom:14px; box-shadow:var(--shadow);
+          display:grid; grid-template-columns:1fr 1.25fr; gap:20px; align-items:center; }
+  .step.full { grid-template-columns:1fr; }
+  .step .n { display:inline-grid; place-items:center; width:34px; height:34px; border-radius:50%; background:var(--soft); color:var(--pri); font-weight:800; font-size:16px; margin-bottom:8px; }
+  .stu-step .n { background:#e3f5ec; color:var(--ok); }
+  .step h3 { margin:0 0 6px; font-size:19px; letter-spacing:-.2px; }
+  .step p { margin:0; color:var(--sub); font-size:15px; }
+  .step b { color:var(--ink); }
+  .shot { width:100%; border-radius:14px; border:1px solid var(--line); background:#fff; box-shadow:0 12px 30px -18px rgba(27,31,59,.35); display:block; }
+  .phone { max-width:300px; justify-self:center; border:8px solid #1f2130; border-radius:28px; overflow:hidden; box-shadow:0 18px 36px -18px rgba(27,31,59,.55); }
+  .phone img { width:100%; display:block; }
+  .tip { background:#fff8ea; border:1px solid #f4dfb0; border-radius:14px; padding:12px 14px; font-size:14px; color:#6b5520; margin-top:10px; }
+  .tip.green { background:#ecf8f1; border-color:#b5e2c7; color:#1e5b3d; }
+  .faq { background:var(--card); border:1px solid var(--line); border-radius:20px; padding:6px 20px; box-shadow:var(--shadow); }
+  .faq details { border-bottom:1px solid var(--line); padding:14px 0; }
+  .faq details:last-child { border-bottom:0; }
+  .faq summary { font-weight:700; cursor:pointer; }
+  .faq p { margin:8px 0 0; color:var(--sub); font-size:15px; }
+  .cta { display:inline-block; margin-top:16px; background:#fff; color:var(--pri); font-weight:800; padding:12px 18px; border-radius:14px; text-decoration:none; }
+  .foot { text-align:center; color:var(--sub); font-size:13px; margin-top:28px; }
+  @media (max-width:640px) { .step { grid-template-columns:1fr; } .hero h1 { font-size:23px; } .phone { max-width:260px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <span class="badge">인천 AIEP · 학생 로그인 도우미</span>
+    <h1>사용법 한눈에 보기</h1>
+    <p>엑셀 명단 하나로 반 전체 로그인 링크를 만들고, 학생은 자기 이름만 눌러 로그인해요.<br>갤럭시탭·윈도우 노트북 모두 같은 방법으로 쓸 수 있어요.</p>
+    <div class="flow"><span>📄 엑셀 준비</span><span>⬆️ 명단 넣기</span><span>🔗 링크 만들기</span><span>👆 이름 누르기</span><span>✅ 로그인</span></div>
+    <a class="cta" href="./">링크 만들러 가기 →</a>
+  </div>
+
+  <div class="part"><span class="tag">선생님</span><h2>반 링크 만들기</h2></div>
+
+  <div class="step">
+    <div>
+      <span class="n">1</span>
+      <h3>엑셀에 명단 적기</h3>
+      <p><b>A열 이름 · B열 아이디 · C열 비밀번호</b> 순서로 적어요. 첫 줄 제목은 있어도 없어도 괜찮아요.</p>
+      <div class="tip">아이디는 <b>sky.kim01</b>처럼 앞부분만 적어도, <b>sky.kim01@icedu.kr</b> 전체를 적어도 돼요.<br>양식은 생성기의 [엑셀 양식 받기]로 받을 수 있어요.</div>
+    </div>
+    <img class="shot" src="guide/0_excel.png" alt="엑셀 명단 예시">
+  </div>
+
+  <div class="step full">
+    <div>
+      <span class="n">2</span>
+      <h3>엑셀 파일 넣기</h3>
+      <p>생성기의 점선 칸에 엑셀 파일을 <b>끌어다 놓거나 눌러서 선택</b>해요. 엑셀에서 세 칸을 복사해 아래 입력칸에 붙여 넣어도 돼요.</p>
+      <div class="tip">명단은 이 컴퓨터 브라우저에만 저장되고 어디에도 올라가지 않아요.</div>
+      <div class="tip green">맨 위 <b>[🔳 이 사이트 QR 코드]</b>를 누르면 이 생성기 사이트 주소 QR도 바로 만들 수 있어요. 다른 선생님께 알려 줄 때 좋아요.</div>
+    </div>
+    <img class="shot" src="guide/2_drop.png" alt="엑셀 파일 넣는 칸">
+  </div>
+
+  <div class="step full">
+    <div>
+      <span class="n">3</span>
+      <h3>명단 확인하고 [링크 만들기]</h3>
+      <p>입력칸에 학생들이 들어왔는지 보고 보라색 <b>[링크 만들기]</b>를 눌러요. QR이 필요하면 [QR도 만들기]를 체크해요.</p>
+    </div>
+    <img class="shot" src="guide/3_list.png" alt="명단이 들어간 화면">
+  </div>
+
+  <div class="step full">
+    <div>
+      <span class="n">4</span>
+      <h3>반 링크 나눠 주기</h3>
+      <p><b>[반 전체 링크 복사]</b>를 눌러 패들렛·클래스룸·학급 단톡에 올려요. 링크 하나로 반 전체가 들어올 수 있어요.<br>
+        <b>[🔳 이 링크 QR 코드]</b>를 누르면 반 링크 QR이 나와요. PNG로 저장하거나 인쇄해서 칠판·TV에 띄우면 학생이 태블릿 카메라로 찍어 들어와요.</p>
+      <div class="tip">⚠️ 링크 안에 아이디·비밀번호가 들어 있어요. <b>우리 반만 보는 곳</b>에만 올려 주세요.<br>[반 페이지 HTML 파일로 받기]를 누르면 인터넷 링크 대신 파일로도 나눠 줄 수 있어요.</div>
+    </div>
+    <img class="shot" src="guide/4_link.png" alt="반 링크 화면">
+  </div>
+
+  <div class="part stu"><span class="tag">학생</span><h2>링크로 로그인하기</h2></div>
+
+  <div class="step stu-step">
+    <div>
+      <span class="n">1</span>
+      <h3>링크 열고 내 이름 누르기</h3>
+      <p>선생님이 올린 링크를 열고 <b>자기 이름</b>을 눌러요. 한 번 고르면 그 태블릿이 이름을 기억해서 다음부터는 바로 열려요.</p>
+    </div>
+    <div class="phone"><img src="guide/5_pick.png" alt="이름 고르기"></div>
+  </div>
+
+  <div class="step stu-step">
+    <div>
+      <span class="n">2</span>
+      <h3>① 버튼 → 로그인 화면에 아이디 붙여넣기</h3>
+      <p><b>[① 아이디 복사하고 로그인 화면 열기]</b>를 누르면 아이디가 복사되고 AIEP 로그인 화면이 열려요. 아이디 칸을 길게 눌러 <b>붙여넣기</b>해요.</p>
+    </div>
+    <div class="phone"><img src="guide/6_step1.png" alt="① 버튼 화면"></div>
+  </div>
+
+  <div class="step stu-step">
+    <div>
+      <span class="n">3</span>
+      <h3>뒤로가기 한 번</h3>
+      <p>아이디를 넣었으면 화면 아래 <b>뒤로가기(〈)</b>를 한 번 눌러 도우미 화면으로 돌아와요.</p>
+      <div class="tip">갤럭시탭은 클립보드에 마지막 복사 1개만 남아서, 아이디와 비밀번호를 한 번씩 나눠 붙여 넣는 거예요.<br>윈도우는 키보드 <b>Alt + ←</b> 또는 브라우저의 ← 버튼이 뒤로가기예요.</div>
+    </div>
+    <div class="phone"><img src="guide/7_login_id.png" alt="아이디가 들어간 로그인 화면"></div>
+  </div>
+
+  <div class="step stu-step">
+    <div>
+      <span class="n">4</span>
+      <h3>② 버튼 → 비밀번호 붙여넣고 로그인</h3>
+      <p><b>[② 비밀번호 복사하고 로그인 화면으로 돌아가기]</b>를 누르면 아이디가 그대로 들어 있는 로그인 화면으로 돌아가요. 비밀번호 칸에 붙여 넣고 <b>[로그인]</b>을 눌러요.</p>
+    </div>
+    <div class="phone"><img src="guide/8_step2.png" alt="② 버튼 화면"></div>
+  </div>
+
+  <div class="step stu-step">
+    <div>
+      <span class="n">5</span>
+      <h3>로그인 완료! 비밀번호 저장하기</h3>
+      <p>로그인하면 AIEP 학생 메인 화면이 열려요.</p>
+      <div class="tip green">💾 로그인 뒤 <b>"비밀번호를 저장할까요?"</b>가 뜨면 <b>[저장]</b>을 누르세요. 다음부터는 로그인 화면만 열면 아이디·비밀번호가 저절로 채워져요.</div>
+    </div>
+    <div class="phone"><img src="guide/9_login_pw.png" alt="비밀번호까지 들어간 로그인 화면"></div>
+  </div>
+
+  <div class="part"><span class="tag">도움말</span><h2>자주 묻는 질문</h2></div>
+  <div class="faq">
+    <details open><summary>명단 없이 링크를 만들 수 있나요?</summary><p>입력칸을 비워 두고 [링크 만들기]를 누르면 <b>학생이 직접 입력하는 링크</b>가 만들어져요. 학생이 처음 한 번 자기 이름·아이디·비밀번호를 넣으면 그 태블릿에 저장돼요. 링크 안에는 계정이 없어서 공유해도 안전해요.</p></details>
+    <details><summary>다른 학생이 같은 태블릿을 쓰면요?</summary><p>학생 화면 오른쪽 위 <b>[다른 사람이에요]</b>를 누르면 이름 고르기로 돌아가요.</p></details>
+    <details><summary>"SSO ERROR"가 떠요.</summary><p>예전에 열어 둔 페이지가 남아 있어서 그래요. 링크를 새로 열거나 새로고침(윈도우는 Ctrl+F5)한 뒤 다시 해 주세요.</p></details>
+    <details><summary>② 버튼을 눌렀는데 아이디가 비어 있어요.</summary><p>도우미 화면을 새로 연 경우예요. 아이디를 다시 붙여 넣거나 [처음부터 다시]를 눌러 ①부터 해 주세요.</p></details>
+  </div>
+
+  <p class="foot">화면 예시의 이름·아이디·비밀번호는 모두 연습용이에요.</p>
+</div>
+</body>
+</html>

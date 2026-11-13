@@ -5,23 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AIEP 로그인 QR</title>
 <meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --sub:#5b6476; --line:#dde1e8; --pri:#1a5fd0; --pri-ink:#fff; --ok:#14804a; }
+  :root {
+    --bg:#f3f4fb; --card:#fff; --ink:#1b1f3b; --sub:#646a86; --line:#e3e5f2;
+    --pri:#5446f0; --pri2:#7b5cff; --pri-ink:#fff; --soft:#eeecff; --ok:#12865a;
+    --shadow:0 1px 2px rgba(27,31,59,.04), 0 8px 24px -12px rgba(54,44,160,.18);
+  }
   * { box-sizing:border-box; }
   [hidden] { display:none !important; }
-  body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif; }
-  .wrap { max-width:880px; margin:0 auto; padding:20px 16px 60px; }
-  h1 { font-size:22px; margin:8px 0 4px; }
-  h2 { font-size:17px; margin:0 0 10px; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:880px; margin:0 auto; padding:0 16px 60px; }
+  h1 { font-size:24px; margin:8px 0 6px; letter-spacing:-.3px; }
+  h2 { font-size:18px; margin:0 0 12px; display:flex; align-items:center; gap:10px; letter-spacing:-.2px; }
+  .num { display:inline-grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--soft); color:var(--pri); font-size:15px; font-weight:800; flex:none; }
+  .hero { margin:16px 0 18px; padding:26px 24px; border-radius:20px; color:#fff;
+          background:linear-gradient(120deg,#5446f0 0%,#7b5cff 55%,#9b7bff 100%); box-shadow:0 18px 40px -20px rgba(84,70,240,.7); }
+  .hero h1 { margin:0 0 8px; font-size:26px; }
+  .hero .badge { display:inline-block; font-size:13px; font-weight:700; background:rgba(255,255,255,.18); padding:4px 10px; border-radius:99px; margin-bottom:10px; }
+  .hero p { margin:0; line-height:1.6; opacity:.93; }
+  .hero a { color:#fff; font-weight:700; }
   p.lead { color:var(--sub); margin:0 0 18px; line-height:1.55; }
-  .panel { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin-bottom:14px; }
-  .drop { border:2px dashed var(--line); border-radius:12px; padding:20px 12px; text-align:center; color:var(--sub); cursor:pointer; }
-  .drop.over { border-color:var(--pri); background:#eef4ff; }
-  button, .btn { appearance:none; border:0; border-radius:10px; padding:12px 16px; font-size:16px; font-weight:600; cursor:pointer; background:#e9edf3; color:var(--ink); text-decoration:none; display:inline-block; }
-  .pri { background:var(--pri); color:var(--pri-ink); }
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px; margin-bottom:14px; box-shadow:var(--shadow); }
+  .notice { background:#fff8ea; border-color:#f4dfb0; box-shadow:none; }
+  .drop { border:2px dashed #c9c4fb; background:#faf9ff; border-radius:14px; padding:22px 12px; text-align:center; color:var(--sub); cursor:pointer; transition:.15s; }
+  .drop:hover { border-color:var(--pri); }
+  .drop .ico { font-size:30px; display:block; margin-bottom:4px; }
+  .drop.over { border-color:var(--pri); background:var(--soft); }
+  button, .btn { appearance:none; border:1px solid var(--line); border-radius:12px; padding:12px 16px; font:inherit; font-size:15px; font-weight:700; cursor:pointer; background:#fff; color:var(--ink); text-decoration:none; display:inline-block; transition:transform .05s, box-shadow .15s, background .15s; }
+  button:hover, .btn:hover { background:#f7f7fd; }
+  button:active, .btn:active { transform:translateY(1px); }
+  .pri { background:linear-gradient(180deg,var(--pri2),var(--pri)); border-color:transparent; color:var(--pri-ink); box-shadow:0 10px 22px -10px rgba(84,70,240,.8); }
+  .pri:hover { background:linear-gradient(180deg,#8a6dff,#4a3be6); }
   .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .muted { color:var(--sub); font-size:14px; line-height:1.55; }
-  textarea { width:100%; min-height:180px; border:1px solid var(--line); border-radius:10px; padding:10px; font-size:15px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .muted { color:var(--sub); font-size:14px; line-height:1.6; }
+  code { background:var(--soft); color:var(--pri); padding:1px 6px; border-radius:6px; font-size:13px; }
+  select { font:inherit; font-size:14px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  textarea { width:100%; min-height:180px; border:1px solid var(--line); border-radius:12px; padding:12px; font-size:15px; font-family:ui-monospace,Menlo,Consolas,monospace; background:#fcfcff; }
+  textarea:focus, .inp:focus { outline:3px solid #d9d4ff; border-color:var(--pri); }
   .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin-top:14px; }
   .qcard { background:#fff; border:1px solid #bbb; border-radius:8px; padding:10px; text-align:center; break-inside:avoid; }
   .qcard .nm { font-size:18px; font-weight:700; }
@@ -29,25 +50,36 @@
   .qcard img { width:150px; height:150px; image-rendering:pixelated; }
   .classqr { text-align:center; break-inside:avoid; }
   .classqr img { width:min(360px,90vw); image-rendering:pixelated; }
-  .err { color:#b42318; }
+  .err { color:#c4321c; }
+  .foot { text-align:center; margin-top:22px; }
+  .ghost { background:rgba(255,255,255,.16); color:#fff; border:1px solid rgba(255,255,255,.35); }
+  .ghost:hover { background:rgba(255,255,255,.26); }
+  .qrpanel { text-align:center; }
+  .qrpanel h2 { justify-content:center; }
+  .qrpanel img { width:min(360px,80vw); image-rendering:pixelated; border:1px solid var(--line); border-radius:12px; padding:8px; background:#fff; }
+  .qrurl { word-break:break-all; font-size:12px; }
   /* 학생 화면 */
-  .stu { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
-  .names { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
-  .inp { width:100%; font-size:20px; padding:12px; border:1px solid var(--line); border-radius:10px; margin-top:6px; font-family:ui-monospace,Menlo,Consolas,monospace; }
-  .names button { font-size:18px; padding:16px 8px; background:#fff; border:1px solid var(--line); }
-  .field { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin:10px 0; }
-  .field .lb { font-size:14px; color:var(--sub); }
-  .field .val { font-size:26px; font-weight:700; letter-spacing:.5px; word-break:break-all; margin:4px 0 10px; font-family:ui-monospace,Menlo,Consolas,monospace; }
-  .big { width:100%; font-size:19px; padding:16px; margin-top:6px; }
-  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1d2330; color:#fff; padding:10px 16px; border-radius:20px; font-size:15px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .stu { max-width:520px; margin:0 auto; padding:22px 16px 40px; }
+  .stu > h1 { font-size:26px; }
+  .names { display:grid; grid-template-columns:repeat(auto-fill,minmax(120px,1fr)); gap:10px; margin-top:14px; }
+  .inp { width:100%; font-size:20px; padding:12px; border:1px solid var(--line); border-radius:12px; margin-top:6px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .names button { font-size:19px; padding:20px 8px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); }
+  .names button:hover { border-color:var(--pri); color:var(--pri); }
+  .field { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; margin:10px 0; box-shadow:var(--shadow); }
+  .field .lb { font-size:14px; color:var(--sub); font-weight:600; }
+  .field .val { font-size:26px; font-weight:800; letter-spacing:.5px; word-break:break-all; margin:4px 0 10px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  .big { width:100%; font-size:19px; padding:18px; margin-top:8px; border-radius:16px; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1b1f3b; color:#fff; padding:11px 18px; border-radius:99px; font-size:15px; opacity:0; transition:opacity .2s; pointer-events:none; box-shadow:0 10px 30px -10px rgba(0,0,0,.5); }
   .toast.on { opacity:1; }
-  .howto { background:#fff8e1; border:1px solid #f3d27a; border-radius:12px; padding:14px; margin:12px 0; line-height:1.6; text-align:center; }
-  .navbar { display:flex; justify-content:center; gap:42px; background:#222; color:#bbb; border-radius:10px; padding:10px; margin:10px auto; max-width:260px; font-size:24px; }
-  .navbar .hl { color:#fff; background:#e5484d; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center; margin:-4px 0; animation:blink 1s infinite; }
+  .howto { background:#fff8ea; border:1px solid #f4dfb0; border-radius:16px; padding:16px; margin:12px 0; line-height:1.65; text-align:center; }
+  .navbar { display:flex; justify-content:center; gap:42px; background:#1f2130; color:#aab; border-radius:12px; padding:10px; margin:12px auto; max-width:260px; font-size:24px; }
+  .navbar .hl { color:#fff; background:#ef4444; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center; margin:-4px 0; animation:blink 1s infinite; }
   @keyframes blink { 50% { opacity:.35; } }
-  .done { font-size:18px; font-weight:700; color:var(--ok); }
-  .link { background:none; color:var(--sub); text-decoration:underline; font-weight:400; font-size:14px; padding:8px 0; }
-  .save { background:#eaf7ef; border:1px solid #a6dcb9; border-radius:12px; padding:12px 14px; margin:12px 0; line-height:1.6; font-size:15px; }
+  .done { font-size:18px; font-weight:800; color:var(--ok); }
+  .link { background:none; border:0; box-shadow:none; color:var(--sub); text-decoration:underline; font-weight:500; font-size:14px; padding:8px 0; }
+  .link:hover { background:none; color:var(--pri); }
+  .save { background:#ecf8f1; border:1px solid #b5e2c7; border-radius:16px; padding:14px 16px; margin:12px 0; line-height:1.65; font-size:15px; }
+  @media (max-width:520px) { .hero { padding:22px 18px; } .hero h1 { font-size:22px; } .panel { padding:16px; } }
   @media print {
     body { background:#fff; }
     .noprint { display:none !important; }
@@ -56,18 +88,40 @@
     .qcard { border:1px dashed #888; }
     .classqr { page-break-after:always; }
     .classqr img { width:120mm; }
+    body.printqr .wrap > .noprint > *:not(#qrBox) { display:none !important; }
+    body.printqr .noprint { display:block !important; }
+    body.printqr #qrBox { display:block !important; border:0; box-shadow:none; }
+    body.printqr #qrBox .row, body.printqr #cards, body.printqr #classBox { display:none !important; }
+    body.printqr #qrImg { width:120mm; border:0; }
   }
 </style>
 </head>
 <body>
 <div id="teacher" class="wrap" hidden>
   <div class="noprint">
-    <h1>AIEP 로그인 링크 만들기</h1>
-    <p class="lead">학생 명단(이름 · 아이디 · 비밀번호)을 넣으면 <b>반 전체 링크 1개</b>가 만들어집니다. 학생은 링크를 열고 자기 이름을 누르면 돼요. (필요하면 QR도 만들 수 있어요)<br>
-      명단은 이 브라우저 안에서만 쓰이고 어디에도 올라가지 않습니다.</p>
+    <div class="hero">
+      <span class="badge">인천 AIEP · 학생 로그인 도우미</span>
+      <h1>AIEP 로그인 링크 만들기</h1>
+      <p>학생 명단(이름 · 아이디 · 비밀번호)을 넣으면 <b>반 전체 링크 1개</b>가 만들어져요. 학생은 링크를 열고 자기 이름만 누르면 돼요.<br>
+        명단은 이 브라우저 안에서만 쓰이고 어디에도 올라가지 않아요.</p>
+      <div class="row" style="margin-top:14px">
+        <a class="btn ghost" href="guide.html">📘 사용법 보기</a>
+        <button id="siteQr" class="ghost">🔳 이 사이트 QR 코드</button>
+      </div>
+    </div>
+    <div class="panel qrpanel" id="qrBox" hidden>
+      <h2 id="qrTitle">QR 코드</h2>
+      <img id="qrImg" alt="QR 코드">
+      <p id="qrUrl" class="muted qrurl"></p>
+      <div class="row" style="justify-content:center">
+        <a id="qrSave" class="btn pri" download="QR.png">PNG로 저장</a>
+        <button id="qrPrint">인쇄</button>
+        <button id="qrClose">닫기</button>
+      </div>
+    </div>
     <div class="panel">
-      <h2>1. 학생 명단</h2>
-      <div id="drop" class="drop">엑셀 파일을 끌어다 놓거나 <b>눌러서 선택</b> (A열 이름 · B열 아이디 · C열 비밀번호)</div>
+      <h2><span class="num">1</span>학생 명단 넣기</h2>
+      <div id="drop" class="drop"><span class="ico">📄</span>엑셀 파일을 끌어다 놓거나 <b>눌러서 선택</b> (A열 이름 · B열 아이디 · C열 비밀번호)</div>
       <input id="file" type="file" accept=".xlsx,.xls,.csv" hidden>
       <p class="muted" style="margin:10px 0 6px">또는 아래에 직접 입력하세요. 한 줄에 한 명: <code>이름 아이디 비밀번호</code> (엑셀에서 세 칸을 복사해 붙여 넣어도 돼요)</p>
       <textarea id="list" placeholder="홍길동 hong001 abc1234!&#10;김하늘 kim002 xyz5678!" spellcheck="false" autocomplete="off"></textarea>
@@ -85,16 +139,17 @@
       <p id="saved" class="muted"></p>
       <p id="msg" class="muted"></p>
     </div>
-    <div class="panel muted">
+    <div class="panel notice muted">
       ⚠️ 링크(와 QR) 안에 아이디·비밀번호가 들어 있습니다. 특히 <b>반 전체 링크</b>에는 반 학생 모두의 계정이 들어 있으니 우리 반만 보는 곳(비공개 패들렛·클래스룸)에만 올리고, 학기가 끝나면 비밀번호를 바꿔 주세요.<br>
       입력한 명단은 다음에 다시 쓰도록 <b>이 브라우저에 자동 저장</b>됩니다. 공용 컴퓨터라면 다 쓴 뒤 [명단 지우기]를 눌러 주세요.
     </div>
     <div class="panel" id="linkBox" hidden>
-      <h2>2. 우리 반 링크</h2>
+      <h2><span class="num">2</span>우리 반 링크 나눠 주기</h2>
       <p class="muted">이 링크 하나를 패들렛·클래스룸·학급 단톡에 올리세요. 학생은 링크를 누르고 <b>자기 이름</b>을 고르면 돼요.</p>
       <textarea id="classLink" readonly style="min-height:90px"></textarea>
       <div class="row" style="margin-top:8px">
         <button id="copyClass" class="pri">반 전체 링크 복사</button>
+        <button id="classQrBtn">🔳 이 링크 QR 코드</button>
         <a id="openClass" class="btn" target="_blank" rel="noopener">학생 화면 미리 보기</a>
         <button id="dlHtml">반 페이지 HTML 파일로 받기</button>
         <button id="linkXlsx">학생별 링크 엑셀 받기</button>
@@ -285,6 +340,9 @@ function teacherView() {
   file.onchange = () => file.files[0] && read(file.files[0]);
   $('build').onclick = build;
   $('withQr').checked = ls.get('aiep-withqr') === '1';
+  $('siteQr').onclick = () => showQr('AIEP 로그인 링크 만들기 사이트', location.origin + location.pathname, 'AIEP_사이트_QR.png');
+  $('qrClose').onclick = () => { $('qrBox').hidden = true; };
+  $('qrPrint').onclick = () => { document.body.classList.add('printqr'); window.print(); document.body.classList.remove('printqr'); };
   $('withQr').onchange = () => { ls.set('aiep-withqr', $('withQr').checked ? '1' : null); build(); };
   $('clear').onclick = () => {
     if (!confirm('이 브라우저에 저장된 명단을 지울까요?')) return;
@@ -327,6 +385,18 @@ function parseList(text) {
 }
 
 const qrImg = (text, cell) => { const q = qrcode(0, 'M'); q.addData(text); q.make(); return q.createDataURL(cell, 2); };
+
+// 링크 하나를 큰 QR로 보여 준다. 반 전체 링크처럼 길면 오류 정정 단계를 낮춰서라도 담고, 그래도 넘치면 안내한다.
+function showQr(title, url, file) {
+  let src = '';
+  for (const lv of ['M', 'L']) {
+    try { const q = qrcode(0, lv); q.addData(url); q.make(); src = q.createDataURL(Math.max(3, Math.floor(480 / q.getModuleCount())), 4); break; } catch (e) {}
+  }
+  if (!src) { toast('링크가 너무 길어 QR에 담을 수 없어요. [반 페이지 HTML 파일로 받기]를 써 주세요'); return; }
+  $('qrTitle').textContent = title; $('qrImg').src = src; $('qrUrl').textContent = url.length > 90 ? url.slice(0, 90) + '…' : url;
+  $('qrSave').href = src; $('qrSave').download = file;
+  $('qrBox').hidden = false; $('qrBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 let links = [], classUrl = '', classData = null;
 async function build(e) {
@@ -375,6 +445,7 @@ async function build(e) {
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '로그인 링크');
     XLSX.writeFile(wb, 'AIEP_로그인링크.xlsx');
   };
+  $('classQrBtn').onclick = () => showQr(classUrl.includes('#self=') ? '학생이 직접 입력하는 링크 QR' : '우리 반 AIEP 로그인 QR', classUrl, 'AIEP_반링크_QR.png');
   $('copyClass').onclick = async () => toast(await copy(classUrl) ? '반 전체 링크를 복사했어요' : '복사가 안 돼요');
   $('dlHtml').onclick = downloadHtml;
 }
