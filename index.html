@@ -220,6 +220,13 @@
     💾 <b>다음부터 자동 입력되게 하려면</b><br>
     로그인 버튼을 누른 뒤 화면에 <b>"비밀번호를 저장할까요?"</b>가 뜨면 <b>[저장]</b>을 누르세요.<br>
     다음부터는 로그인 화면만 열면 아이디·비밀번호가 저절로 채워져요.
+    <button id="gpm" class="btn big">🔑 구글 비밀번호에 저장하기</button>
+    <div id="gpmHow" class="howto" hidden>
+      <div><b>① 파일을 받았어요</b> (다운로드 폴더의 <b id="gpmFile"></b>)</div>
+      <div><b>② 새로 열린 구글 비밀번호 관리자</b>에서 <b>설정(⚙) → 비밀번호 가져오기 → 파일 선택</b> → 방금 받은 파일 고르기</div>
+      <div><b>③ 가져오기가 끝나면 받은 파일은 지워 주세요</b> (비밀번호가 그대로 적혀 있어요)</div>
+      <div class="muted">크롬에 구글 계정으로 로그인되어 있어야 해요. 관리자가 안 열리면 크롬 <b>설정 → 비밀번호 관리자 → 설정 → 비밀번호 가져오기</b>로 들어가도 돼요.</div>
+    </div>
     <div class="muted">이 태블릿은 <b id="meName"></b>(으)로 기억해 둘게요. 다음에 QR을 찍으면 바로 이 화면이 열려요.</div>
   </div>
 </div>
@@ -340,6 +347,22 @@ function studentView(d, onOther) {
     toast(ok ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   };
   $('restart').onclick = () => { store.set(null); show(); };
+  // 웹페이지는 다른 사이트(icedu.kr) 비밀번호를 구글 비밀번호 관리자에 직접 넣을 수 없다.
+  // 그래서 관리자가 받아 주는 CSV(name,url,username,password,note)를 내려받게 하고 가져오기 화면을 연다.
+  $('gpm').onclick = () => {
+    const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const csv = 'name,url,username,password,note\r\n' +
+      ['auth.icedu.kr', 'https://auth.icedu.kr/login/', d.i, d.p, 'AIEP ' + d.n].map(q).join(',') + '\r\n';
+    const file = 'AIEP_' + d.n + '_비밀번호.csv';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = file; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    window.open('https://passwords.google.com/options', '_blank');
+    $('gpmFile').textContent = file; $('gpmHow').hidden = false;
+    toast('파일을 받았어요. 구글 비밀번호 관리자에서 가져오기 하세요');
+  };
+  $('gpmHow').hidden = true;
   window.onpageshow = show;
   show();
 }
