@@ -72,6 +72,9 @@
   .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#1b1f3b; color:#fff; padding:11px 18px; border-radius:99px; font-size:15px; opacity:0; transition:opacity .2s; pointer-events:none; box-shadow:0 10px 30px -10px rgba(0,0,0,.5); }
   .toast.on { opacity:1; }
   .howto { background:#fff8ea; border:1px solid #f4dfb0; border-radius:16px; padding:16px; margin:12px 0; line-height:1.65; text-align:center; }
+  .tabs { display:flex; gap:4px; justify-content:center; margin:12px auto; max-width:340px; background:#e6e7f2; padding:6px 6px 0; border-radius:10px 10px 0 0; }
+  .tabs .tb { flex:1; font-size:13px; padding:7px 8px; border-radius:8px 8px 0 0; color:var(--sub); background:#d9dbea; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tabs .tb.on { background:#fff; color:var(--ink); font-weight:700; animation:blink 1s infinite; }
   .navbar { display:flex; justify-content:center; gap:42px; background:#1f2130; color:#aab; border-radius:12px; padding:10px; margin:12px auto; max-width:260px; font-size:24px; }
   .navbar .hl { color:#fff; background:#ef4444; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center; margin:-4px 0; animation:blink 1s infinite; }
   @keyframes blink { 50% { opacity:.35; } }
@@ -202,14 +205,14 @@
   <div id="step1">
     <button id="go1" class="pri big">① 아이디 복사하고 로그인 화면 열기</button>
     <div class="howto">
-      <div>로그인 화면에서 <b>아이디</b>를 붙여 넣은 다음,<br>화면 아래 <b>뒤로가기</b>를 한 번 눌러 이 화면으로 돌아오세요.</div>
-      <div class="navbar"><span>|||</span><span>○</span><span class="hl">〈</span></div>
-      <div class="muted">갤럭시탭 아래쪽 버튼 줄의 <b>〈</b> 가 뒤로가기예요. (버튼이 없으면 화면 옆 끝에서 안쪽으로 쓸어 넘기기)</div>
+      <div>로그인 화면이 <b>새 탭</b>으로 열려요. <b>아이디</b>를 붙여 넣은 다음,<br>이 도우미 탭으로 돌아오세요.</div>
+      <div class="tabs"><span class="tb on">AIEP 로그인 도우미</span><span class="tb">AIEP | 로그인</span></div>
+      <div class="muted">윈도우: 브라우저 위쪽 <b>탭</b>을 누르거나 <b>Ctrl + Tab</b> · 갤럭시탭: 주소창 옆 <b>탭 버튼</b>을 눌러 이 탭 고르기</div>
     </div>
   </div>
   <div id="step2" hidden>
     <p class="done">✅ 아이디를 넣었죠? 이제 비밀번호 차례예요.</p>
-    <button id="go2" class="pri big">② 비밀번호 복사하고 로그인 화면으로 돌아가기</button>
+    <button id="go2" class="pri big">② 비밀번호 복사하고 로그인 탭으로 가기</button>
     <div class="howto"><div>로그인 화면에서 <b>비밀번호</b> 칸에 붙여 넣고 <b>로그인</b>을 누르세요.</div></div>
     <button id="restart" class="link">처음부터 다시</button>
   </div>
@@ -242,6 +245,16 @@ const ls = { get: k => { try { return localStorage.getItem(k); } catch (e) { ret
              set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} } };
 
 function toast(t) { const el = $('toast'); el.textContent = t; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 1600); }
+
+// 탭이 바뀌기 전에 끝나야 하는 복사. execCommand 는 즉시 끝나고, clipboard API 도 지금(화면이 앞에 있을 때) 시작해 둔다.
+function copyNow(text) {
+  const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+  let ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+  try { navigator.clipboard.writeText(text).catch(() => {}); ok = true; } catch (e) {}
+  return ok;
+}
 
 async function copy(text) {
   try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
@@ -292,31 +305,38 @@ const fixSite = s => (!s || /^https:\/\/(auth\.icedu\.kr\/login\/|ptl\.icedu\.kr
 function studentView(d, onOther) {
   d = Object.assign({}, d, { s: fixSite(d.s) });
   $('pick').hidden = true; $('self').hidden = true; $('student').hidden = false;
-  document.title = d.n + ' 로그인';
+  document.title = 'AIEP 로그인 도우미 · ' + d.n;
   $('sName').textContent = d.n; $('meName').textContent = d.n;
   $('sId').textContent = d.i; $('sPw').textContent = d.p;
   $('other').hidden = !onOther; $('other').onclick = onOther || null;
   $('cpId').onclick = async () => toast(await copy(d.i) ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   $('cpPw').onclick = async () => toast(await copy(d.p) ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   // 태블릿 키보드는 클립보드에 마지막 복사 1개만 남는 경우가 많다(갤럭시탭 실기기).
-  // 그래서 클립보드 1칸으로 끝나게: 아이디 복사 → 로그인 화면에 붙여넣기 → 뒤로가기 →
-  // 비밀번호 복사 → history.forward() 로 아이디가 들어 있는 그 로그인 화면으로 돌아간다.
+  // 그래서 클립보드 1칸으로 끝나게: 아이디 복사 → 로그인 화면(새 탭)에 붙여넣기 → 이 탭으로 돌아오기 →
+  // 비밀번호 복사 → 같은 이름의 로그인 탭을 다시 앞으로 꺼낸다(주소를 다시 열지 않아 아이디가 남는다).
+  // 새 탭은 클릭 처리 안에서 바로 열어야 팝업 차단에 안 걸리고, 복사는 탭이 바뀌기 전에 끝내야 한다.
+  const TAB = 'aiep-login';
   const KEY = 'aiep-step:' + d.n + ':' + d.i;
   const store = { get: () => { try { return sessionStorage.getItem(KEY); } catch (e) { return null; } },
                   set: v => { try { v ? sessionStorage.setItem(KEY, v) : sessionStorage.removeItem(KEY); } catch (e) {} } };
   const show = () => { const two = store.get() === '2'; $('step1').hidden = two; $('step2').hidden = !two; };
-  $('go1').onclick = async () => {
-    toast(await copy(d.i) ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
-    store.set('2');
-    setTimeout(() => { location.href = d.s; }, 700);
+  $('go1').onclick = () => {
+    const ok = copyNow(d.i);
+    store.set('2'); show();
+    const w = window.open(d.s, TAB);
+    if (!w) { toast('새 탭이 막혔어요. 이 화면에서 로그인 화면을 열게요'); setTimeout(() => { location.href = d.s; }, 900); return; }
+    toast(ok ? '아이디를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   };
-  $('go2').onclick = async () => {
-    toast(await copy(d.p) ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
-    setTimeout(() => {
-      history.forward();
-      // 앞으로 갈 화면이 없으면(새로 연 경우) 로그인 화면을 새로 연다. 이때는 아이디를 다시 넣어야 한다.
-      setTimeout(() => { if (!document.hidden) location.href = d.s; }, 1200);
-    }, 500);
+  $('go2').onclick = () => {
+    const ok = copyNow(d.p);
+    // 이미 열린 로그인 탭이 있으면 주소를 바꾸지 않고 그 탭을 꺼낸다. 없으면 새로 연다(아이디를 다시 넣어야 함).
+    let w = window.open('', TAB);
+    if (w) {
+      let blank = true; try { blank = w.location.href === 'about:blank'; } catch (e) { blank = false; }
+      if (blank) w.location.href = d.s;
+      w.focus();
+    } else { setTimeout(() => { location.href = d.s; }, 900); }
+    toast(ok ? '비밀번호를 복사했어요' : '복사가 안 돼요. 직접 입력해 주세요');
   };
   $('restart').onclick = () => { store.set(null); show(); };
   window.onpageshow = show;
