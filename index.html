@@ -78,7 +78,7 @@
         <button id="clear">명단 지우기</button>
         <label class="muted">로그인 사이트
           <select id="site">
-            <option value="https://auth.icedu.kr/login/?mode=form">AIEP 인천</option>
+            <option value="https://ptl.icedu.kr/auth/saml/aiep/login">AIEP 인천</option>
           </select>
         </label>
       </div>
@@ -228,7 +228,13 @@ function selfView(site) {
 }
 
 /* ---------- 학생 1명 화면 ---------- */
+// auth.icedu.kr 로그인 화면을 바로 열면 로그인 뒤 갈 서비스가 없어 midp.icedu.kr/sso/error.jsp 가 뜬다.
+// 포털(ptl.icedu.kr)의 SAML 입구로 열어야 로그인 뒤 AIEP 통합 서비스로 넘어간다. 예전 링크도 여기서 바꿔 준다.
+const AIEP = 'https://ptl.icedu.kr/auth/saml/aiep/login';
+const fixSite = s => (!s || /^https:\/\/auth\.icedu\.kr\/login\//.test(s)) ? AIEP : s;
+
 function studentView(d, onOther) {
+  d = Object.assign({}, d, { s: fixSite(d.s) });
   $('pick').hidden = true; $('self').hidden = true; $('student').hidden = false;
   document.title = d.n + ' 로그인';
   $('sName').textContent = d.n; $('meName').textContent = d.n;
